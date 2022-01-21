@@ -39,25 +39,33 @@ class HGDL:
         """
         Initialization for the HGDL class
 
-        required parameters:
-        ---------------
-            func:  the objective function, callable R^dim --> R
-            grad:  the objective function gradient, callable R^dim --> R^dim
-            bounds: optimization bounds, 2d numpy array
-
-        optional parameters:
-        ---------------
-            hess = None:  the objective function hessian, R^dim --> R^dim*dim
-            num_epochs = 100000: run until num_epochs are completed
-            global_optimizer = "genetic"   "genetic"/"gauss"/user defined function (soon Bayes),
-                                           use partial() to communicate args to the function
-            local_optimizer = "dNewton"    use dNewton or any scipy local optimizer
-                                           (recommended: L-BFGS-B, SLSQP, TNC (those allow for bounds)), or your own callable
-            number_of_optima               how many optima will be recorded and deflated
-            radius = None, means it will be set to the mean of the domain size/100, felation radius
-            local_max_iter = 100
-            args = (), an n-tuple of parameters, will be communicated to func, grad, hess
-            constr = (), define constraints following the format in scipy.optimize.minimize (only foir certain local optimizers)
+        Parameters
+        ----------
+        func
+            the objective function, callable R^dim --> R
+        grad
+            the objective function gradient, callable R^dim --> R^dim
+        bounds
+            optimization bounds, 2d numpy array
+        hess : optional
+            the objective function hessian, R^dim --> R^dim*dim
+        num_epochs : optional
+            run until num_epochs are completed
+        global_optimizer : optional
+            "genetic"/"gauss"/user defined function (soon Bayes),
+            use partial() to communicate args to the function
+        local_optimizer : optional
+            use "dNewton" or any scipy local optimizer
+            (recommended: L-BFGS-B, SLSQP, TNC (those allow for bounds)), or your own callable
+        number_of_optima : optional
+            how many optima will be recorded and deflated
+        radius : optional
+            if not provided,  it will be set to the mean of the domain size/100, felation radius
+        local_max_iter : optional
+        args : optional
+            an n-tuple of parameters, will be communicated to func, grad, hess
+        constr : optional
+            define constraints following the format in scipy.optimize.minimize (only foir certain local optimizers)
         """
         self.func = func
         self.grad= grad
@@ -85,12 +93,17 @@ class HGDL:
     ###########################################################################
     def optimize(self, dask_client = None, x0 = None, tolerance = 1e-6):
         """
-        optional input:
-        -----
-            dask_client = None = dask.distributed.Client()
-            x0 = None = random.rand()   starting positions
-        """
+        Starts the optimization using the specified dask client and optional starting locations.
 
+        Parameters
+        ----------
+        dask_client : optional
+            Optional dask client to use
+        x0 : int or np.array, optional
+            Starting location(s)
+        tolerance : optional
+            Tolerance for the local optimizer
+        """
         client = self._init_dask_client(dask_client)
         self.tolerance = tolerance
         print(client, flush = True)
@@ -106,11 +119,13 @@ class HGDL:
     ###########################################################################
     def get_latest(self, n = None):
         """
-        get n best results
+        Gets the latest `n` results while `hgdl` is running.
 
-        input:
-        -----
-            n: number of results requested
+        Parameters
+        ----------
+        n : int, optional
+            Number of results requested.
+            If `n` not provided (None), all found solutions are requested.
         """
         try:
             data, frames = self.transfer_data.get()
@@ -139,6 +154,15 @@ class HGDL:
     ###########################################################################
     def get_final(self,n = None):
         """
+        Blocks the main thread until `hgdl` is done and returns the end `n` results.
+
+        Parameters
+        ----------
+        n : int, optional
+            Number of results requested.
+            If `n` not provided (None), all found solutions are requested.
+        """
+        """
         get n final results
 
         input:
@@ -161,6 +185,17 @@ class HGDL:
     ###########################################################################
     def cancel_tasks(self, n = None):
         """
+        Cancels all tasks but leaves the client alive.
+        Returns the best `n` results.
+
+        Parameters
+        ----------
+        n : int, optional
+            Number of results requested.
+            If `n` not provided (None), all found solutions are requested.
+
+        """
+        """
         cancel tasks but leave client alive
         return:
         -------
@@ -176,10 +211,14 @@ class HGDL:
     ###########################################################################
     def kill_client(self, n = None):
         """
-        kill tasks and shutdown client
-        return:
-        -------
-            latest results
+        Cancels all tasks and kills the client.
+        Returns the best `n` results.
+
+        Parameters
+        ----------
+        n : int, optional
+            Number of results requested.
+            If `n` not provided (None), all found solutions are requested.
         """
         print("HGDL kill client initialized ...")
         res = self.get_latest(n)
