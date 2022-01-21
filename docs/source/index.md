@@ -8,13 +8,24 @@ caption: About
 
 # HGDL
 
-The HGDL package is a high-performance, distributed, asynchronous optimizer that can be used for fvGP and therefore gpCAM training and the acquisition function optimization. However, it is its own python API which can be installed via "pip install hgdl". We present the API below. 
+[![PyPI](https://img.shields.io/pypi/v/HGDL)](https://pypi.org/project/hgdl/)
 
-Installation: pip install hgdl
+The HGDL package is a high-performance, distributed, asynchronous optimizer
+that can be used for fvGP and therefore gpCAM training
+and the acquisition function optimization.
+However, it is its own python API which can be installed via `pip`.
 
-To see the code and the tests: git clone https://github.com/lbl-camera/HGDL.git
+## Installation
 
-current version 1.4.3
+```
+pip install hgdl
+```
+
+## Code and Tests
+
+git clone [https://github.com/lbl-camera/HGDL.git](https://github.com/lbl-camera/HGDL)
+
+## API
 
 ```{eval-rst}
 .. autoclass:: hgdl.hgdl.HGDL
